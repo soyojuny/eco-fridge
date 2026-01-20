@@ -49,6 +49,8 @@ export function ItemList({
   }, [filteredItems]);
 
   const stats = useMemo(() => {
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
     const activeItems = items.filter((item) => item.status === 'active');
     return {
       total: activeItems.length,
@@ -57,7 +59,7 @@ export function ItemList({
       pantry: activeItems.filter((item) => item.storage_method === 'pantry').length,
       expiringSoon: activeItems.filter((item) => {
         const days = Math.ceil(
-          (new Date(item.expiry_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+          (new Date(item.expiry_date).getTime() - todayStart) / (1000 * 60 * 60 * 24)
         );
         return days <= 3 && days >= 0;
       }).length,

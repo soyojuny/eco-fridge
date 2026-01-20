@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
+import Image from 'next/image';
 import { Camera, Upload, X, RotateCcw, Check, Receipt, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -26,29 +27,42 @@ export function Scanner({ onItemsParsed }: ScannerProps) {
   const [isCapturing, setIsCapturing] = useState(false);
   const [isParsing, setIsParsing] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
+  const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const startCamera = useCallback(async () => {
+  const startCamera = useCallback(async (fMode: 'environment' | 'user') => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+    }
+
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }
+        video: { facingMode: fMode, width: { ideal: 1920 }, height: { ideal: 1080 } }
       });
 
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
-        await videoRef.current.play();
+        try {
+          await videoRef.current.play();
+        } catch (playError) {
+          console.error('Video play failed:', playError);
+          toast.error('카메라 영상을 재생할 수 없습니다.');
+          return;
+        }
       }
 
       setStream(mediaStream);
       setIsCapturing(true);
+      setFacingMode(fMode);
     } catch (error) {
       console.error('Camera access error:', error);
       toast.error('카메라에 접근할 수 없습니다. 권한을 확인해주세요.');
+      setIsCapturing(false);
     }
-  }, []);
+  }, [stream]);
 
   const stopCamera = useCallback(() => {
     if (stream) {
@@ -57,6 +71,11 @@ export function Scanner({ onItemsParsed }: ScannerProps) {
     }
     setIsCapturing(false);
   }, [stream]);
+
+  const toggleCamera = useCallback(() => {
+    const newFacingMode = facingMode === 'environment' ? 'user' : 'environment';
+    startCamera(newFacingMode);
+  }, [facingMode, startCamera]);
 
   const capturePhoto = useCallback(() => {
     if (!videoRef.current || !canvasRef.current) return;
@@ -69,12 +88,16 @@ export function Scanner({ onItemsParsed }: ScannerProps) {
 
     const ctx = canvas.getContext('2d');
     if (ctx) {
+      if (facingMode === 'user') {
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+      }
       ctx.drawImage(video, 0, 0);
       const imageData = canvas.toDataURL('image/jpeg', 0.8);
       setCapturedImage(imageData);
       stopCamera();
     }
-  }, [stopCamera]);
+  }, [stopCamera, facingMode]);
 
   const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -166,19 +189,27 @@ export function Scanner({ onItemsParsed }: ScannerProps) {
               autoPlay
               playsInline
               muted
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover bg-black"
+              style={{ transform: facingMode === 'user' ? 'scaleX(-1)' : 'none' }}
             />
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="border-2 border-white/50 rounded-lg w-[80%] h-[70%]" />
+            </div>
+            <div className="absolute top-2 right-2">
+                <Button variant="outline" size="icon" onClick={toggleCamera}>
+                    <RotateCcw className="w-4 h-4" />
+                </Button>
             </div>
           </>
         )}
 
         {capturedImage && (
-          <img
+          <Image
             src={capturedImage}
             alt="Captured"
-            className="w-full h-full object-contain bg-black"
+            fill
+            className="object-contain bg-black"
+            unoptimized
           />
         )}
 
@@ -197,7 +228,7 @@ export function Scanner({ onItemsParsed }: ScannerProps) {
         {!isCapturing && !capturedImage && (
           <>
             <Button
-              onClick={startCamera}
+              onClick={() => startCamera(facingMode)}
               className="flex-1 bg-green-600 hover:bg-green-700"
             >
               <Camera className="w-4 h-4 mr-2" />
