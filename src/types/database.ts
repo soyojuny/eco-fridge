@@ -1,0 +1,36 @@
+export type StorageMethod = 'fridge' | 'freezer' | 'pantry';
+export type ItemStatus = 'active' | 'consumed' | 'discarded';
+
+export interface Item {
+  id: string;
+  user_id?: string;
+  created_at: string;
+  name: string;
+  category: string | null;
+  storage_method: StorageMethod;
+  status: ItemStatus;
+  purchase_date: string;
+  expiry_date: string;
+  is_estimated: boolean;
+  image_url: string | null;
+  memo: string | null;
+}
+
+export type ItemInsert = Omit<Item, 'id' | 'created_at'>;
+export type ItemUpdate = Partial<Omit<Item, 'id' | 'user_id' | 'created_at'>>;
+
+export interface Database {
+  public: {
+    Tables: {
+      items: {
+        Row: Item;
+        Insert: ItemInsert;
+        Update: ItemUpdate;
+      };
+    };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
+  };
+}
