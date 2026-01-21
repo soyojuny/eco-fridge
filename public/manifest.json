@@ -1,6 +1,6 @@
 {
-  "name": "Smart Pantry",
-  "short_name": "Smart Pantry",
+  "name": "Eco Fridge",
+  "short_name": "Eco Fridge",
   "description": "AI 기반 유통기한 관리 앱",
   "start_url": "/",
   "display": "standalone",

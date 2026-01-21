@@ -54,8 +54,8 @@ export function Settings() {
 
       {/* App Info */}
       <div className="text-center text-sm text-gray-400 mt-4">
-        <p>Smart Pantry v1.0.0</p>
-        <p>© 2024 Smart Pantry</p>
+        <p>Eco Fridge v1.0.0</p>
+        <p>© 2024 Eco Fridge</p>
       </div>
     </div>
   );

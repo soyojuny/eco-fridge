@@ -88,7 +88,7 @@ export function MainLayout() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
       <header className="bg-green-600 text-white p-4 shadow-md">
-        <h1 className="text-xl font-bold text-center">Smart Pantry</h1>
+        <h1 className="text-xl font-bold text-center">Eco Fridge</h1>
       </header>
 
       {/* Main Content */}

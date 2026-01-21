@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import { Camera, Upload, X, RotateCcw, Check, Receipt, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -38,6 +38,8 @@ export function Scanner({ onItemsParsed }: ScannerProps) {
       stream.getTracks().forEach(track => track.stop());
     }
 
+    setIsCapturing(true);
+
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: fMode, width: { ideal: 1920 }, height: { ideal: 1080 } }
@@ -61,6 +63,19 @@ export function Scanner({ onItemsParsed }: ScannerProps) {
       console.error('Camera access error:', error);
       toast.error('카메라에 접근할 수 없습니다. 권한을 확인해주세요.');
       setIsCapturing(false);
+    }
+  }, [stream]);
+
+  useEffect(() => {
+    if (!stream || !videoRef.current) return;
+
+    videoRef.current.srcObject = stream;
+    const playPromise = videoRef.current.play();
+    if (playPromise) {
+      playPromise.catch((playError) => {
+        console.error('Video play failed:', playError);
+        toast.error('移대찓???곸긽???ъ깮?????놁뒿?덈떎.');
+      });
     }
   }, [stream]);
 

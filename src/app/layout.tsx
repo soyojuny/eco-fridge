@@ -15,13 +15,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Smart Pantry",
+  title: "Eco Fridge",
   description: "AI 기반 유통기한 관리 앱",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Smart Pantry",
+    title: "Eco Fridge",
   },
 };
 

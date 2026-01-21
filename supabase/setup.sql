@@ -1,5 +1,5 @@
 -- ================================================
--- Smart Pantry: 전체 데이터베이스 설정
+-- Eco Fridge: 전체 데이터베이스 설정
 -- Supabase SQL Editor에서 이 파일 전체를 실행하세요
 -- ================================================
 
@@ -75,4 +75,4 @@ CREATE POLICY "Users can delete own items"
 -- 3. 완료 메시지
 -- ================================================
 
-SELECT '✅ Smart Pantry 데이터베이스 설정이 완료되었습니다!' AS message;
+SELECT '✅ Eco Fridge 데이터베이스 설정이 완료되었습니다!' AS message;
