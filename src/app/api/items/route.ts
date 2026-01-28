@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
       purchase_date: item.purchase_date || new Date().toISOString().split('T')[0],
       expiry_date: item.expiry_date,
       is_estimated: item.is_estimated || false,
+      quantity: item.quantity || 1,
       image_url: item.image_url || null,
       memo: item.memo || null,
     }));

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { format, addDays } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { Check, X, Edit2, Trash2 } from 'lucide-react';
@@ -26,6 +26,7 @@ import type { StorageMethod } from '@/types/database';
 interface ParsedItem {
   name: string;
   category: string;
+  quantity: number;
   expiry_date: string | null;
   storage_method: StorageMethod;
   is_estimated: boolean;
@@ -41,6 +42,10 @@ interface ItemConfirmDialogProps {
 export function ItemConfirmDialog({ open, items: initialItems, onConfirm, onCancel }: ItemConfirmDialogProps) {
   const [items, setItems] = useState<ParsedItem[]>(initialItems);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    setItems(initialItems);
+  }, [initialItems]);
 
   const handleRemoveItem = (index: number) => {
     setItems(items.filter((_, i) => i !== index));
@@ -93,19 +98,28 @@ export function ItemConfirmDialog({ open, items: initialItems, onConfirm, onCanc
                       onChange={(e) => handleUpdateItem(index, { name: e.target.value })}
                       placeholder="품목명"
                     />
-                    <Select
-                      value={item.category}
-                      onValueChange={(value) => handleUpdateItem(index, { category: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="카테고리" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {CATEGORIES.map((cat) => (
-                          <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Select
+                        value={item.category}
+                        onValueChange={(value) => handleUpdateItem(index, { category: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="카테고리" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {CATEGORIES.map((cat) => (
+                            <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        type="number"
+                        min="1"
+                        value={item.quantity}
+                        onChange={(e) => handleUpdateItem(index, { quantity: parseInt(e.target.value) || 1 })}
+                        placeholder="수량"
+                      />
+                    </div>
                     <Select
                       value={item.storage_method}
                       onValueChange={(value) => handleUpdateItem(index, { storage_method: value as StorageMethod })}
@@ -148,7 +162,12 @@ export function ItemConfirmDialog({ open, items: initialItems, onConfirm, onCanc
                 ) : (
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <p className="font-medium">{item.name}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium">{item.name}</p>
+                        <span className="text-sm bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-medium">
+                          x{item.quantity}
+                        </span>
+                      </div>
                       <div className="flex gap-2 text-sm text-gray-500 mt-1">
                         <span className="bg-gray-100 px-2 py-0.5 rounded">
                           {item.category}

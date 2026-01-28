@@ -12,6 +12,7 @@ export interface Item {
   purchase_date: string;
   expiry_date: string;
   is_estimated: boolean;
+  quantity: number;
   image_url: string | null;
   memo: string | null;
 }

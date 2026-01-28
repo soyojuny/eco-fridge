@@ -12,6 +12,7 @@ type ScanMode = 'receipt' | 'product';
 interface ParsedItem {
   name: string;
   category: string;
+  quantity: number;
   expiry_date: string | null;
   storage_method: 'fridge' | 'freezer' | 'pantry';
   is_estimated: boolean;

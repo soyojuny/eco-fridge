@@ -17,6 +17,7 @@ import type { Item, StorageMethod } from '@/types/database';
 interface ParsedItem {
   name: string;
   category: string;
+  quantity: number;
   expiry_date: string | null;
   storage_method: StorageMethod;
   is_estimated: boolean;

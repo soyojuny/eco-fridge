@@ -13,6 +13,7 @@ const RECEIPT_PROMPT = `당신은 영수증 이미지를 분석하는 AI입니�
     {
       "name": "품목명",
       "category": "카테고리",
+      "quantity": 수량(숫자),
       "expiry_date": "YYYY-MM-DD 또는 null",
       "storage_method": "fridge 또는 freezer 또는 pantry"
     }
@@ -29,6 +30,7 @@ ${CATEGORIES.join(', ')}
 - 채소, 과일 → fridge (기본)
 
 유통기한이 영수증에 없으면 expiry_date는 null로 설정하세요.
+수량이 명시되지 않은 경우 quantity는 1로 설정하세요.
 식품이 아닌 항목(비닐봉투, 할인 등)은 제외하세요.
 JSON만 응답하고 다른 텍스트는 포함하지 마세요.`;
 
@@ -40,6 +42,7 @@ const PRODUCT_PROMPT = `당신은 제품 이미지를 분석하는 AI입니다. 
     {
       "name": "제품명",
       "category": "카테고리",
+      "quantity": 수량(숫자),
       "expiry_date": "YYYY-MM-DD 또는 null",
       "storage_method": "fridge 또는 freezer 또는 pantry"
     }
@@ -55,6 +58,7 @@ ${CATEGORIES.join(', ')}
 - "12/25/24" → "2024-12-25"
 
 유통기한이 보이지 않으면 expiry_date는 null로 설정하세요.
+제품 이미지에서 수량을 확인할 수 없으면 quantity는 1로 설정하세요.
 JSON만 응답하고 다른 텍스트는 포함하지 마세요.`;
 
 export async function POST(req: NextRequest) {
@@ -69,7 +73,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Gemini API 키가 설정되지 않았습니다.' }, { status: 500 });
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     // Base64 이미지에서 데이터 부분만 추출
     const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
@@ -107,11 +111,13 @@ export async function POST(req: NextRequest) {
     const items = (parsedData.items || []).map((item: {
       name: string;
       category: string;
+      quantity?: number;
       expiry_date: string | null;
       storage_method: 'fridge' | 'freezer' | 'pantry';
     }) => {
       const category = item.category || '기타';
       const storageMethod = item.storage_method || 'fridge';
+      const quantity = item.quantity || 1;
 
       if (!item.expiry_date) {
         // 유통기한 추정
@@ -120,6 +126,7 @@ export async function POST(req: NextRequest) {
           ...item,
           category,
           storage_method: storageMethod,
+          quantity,
           expiry_date: format(addDays(today, days), 'yyyy-MM-dd'),
           is_estimated: true,
         };
@@ -129,6 +136,7 @@ export async function POST(req: NextRequest) {
         ...item,
         category,
         storage_method: storageMethod,
+        quantity,
         is_estimated: false,
       };
     });
