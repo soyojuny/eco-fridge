@@ -62,6 +62,31 @@ async function deleteItem(id: string): Promise<void> {
   }
 }
 
+// 음성 명령 결과 타입
+interface VoiceCommandResult {
+  success: boolean;
+  results: Array<{
+    action: 'ADD' | 'CONSUME' | 'DISCARD' | 'UPDATE';
+    success: boolean;
+    itemName?: string;
+    error?: string;
+  }>;
+}
+
+// 음성 명령 처리
+async function processVoiceCommand(command: string): Promise<VoiceCommandResult> {
+  const response = await fetch('/api/ai/command', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ command }),
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || '음성 명령 처리 실패');
+  }
+  return response.json();
+}
+
 export function useItems() {
   const queryClient = useQueryClient();
   const { setItems } = useItemStore();
@@ -99,6 +124,13 @@ export function useItems() {
     },
   });
 
+  const voiceCommandMutation = useMutation({
+    mutationFn: processVoiceCommand,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['items'] });
+    },
+  });
+
   return {
     items: query.data || [],
     isLoading: query.isLoading,
@@ -110,5 +142,7 @@ export function useItems() {
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,
+    processVoiceCommand: voiceCommandMutation.mutateAsync,
+    isProcessingVoiceCommand: voiceCommandMutation.isPending,
   };
 }

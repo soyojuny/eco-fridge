@@ -10,6 +10,7 @@ import { ItemConfirmDialog } from '@/components/scanner/ItemConfirmDialog';
 import { ItemList } from '@/components/inventory/ItemList';
 import { ItemEditDialog } from '@/components/inventory/ItemEditDialog';
 import { Settings as SettingsPanel } from '@/components/settings/Settings';
+import { VoiceCommand } from '@/components/voice/VoiceCommand';
 import { useItems } from '@/hooks/useItems';
 import { useItemStore } from '@/store/useItemStore';
 import type { Item, StorageMethod } from '@/types/database';
@@ -146,6 +147,9 @@ export function MainLayout() {
           </TabsList>
         </Tabs>
       </main>
+
+      {/* Voice Command FAB */}
+      <VoiceCommand />
 
       {/* Dialogs */}
       <ItemConfirmDialog
