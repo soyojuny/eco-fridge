@@ -64,7 +64,11 @@ export function ItemCard({ item, onEdit, onConsume, onDelete }: ItemCardProps) {
     if (touchStart === null) return;
     const diff = touchStart - e.touches[0].clientX;
     if (diff > 0) {
+      // 왼쪽 스와이프: 버튼 표시
       setSwipeOffset(Math.min(diff, 120));
+    } else {
+      // 오른쪽 스와이프: 버튼 숨기기
+      setSwipeOffset(Math.max(0, swipeOffset + diff));
     }
   };
 
