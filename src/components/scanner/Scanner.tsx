@@ -2,12 +2,10 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import Image from 'next/image';
-import { Camera, Upload, X, RotateCcw, Check, Receipt, Package } from 'lucide-react';
+import { Camera, Upload, X, RotateCcw, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
-
-type ScanMode = 'receipt' | 'product';
 
 interface ParsedItem {
   name: string;
@@ -25,7 +23,6 @@ interface ScannerProps {
 const MAX_DIMENSION = 1024;
 
 export function Scanner({ onItemsParsed }: ScannerProps) {
-  const [mode, setMode] = useState<ScanMode>('receipt');
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isCapturing, setIsCapturing] = useState(false);
   const [isParsing, setIsParsing] = useState(false);
@@ -188,7 +185,7 @@ export function Scanner({ onItemsParsed }: ScannerProps) {
       const response = await fetch('/api/ai/parse', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: capturedImage, mode }),
+        body: JSON.stringify({ image: capturedImage }),
       });
 
       if (!response.ok) {
@@ -210,34 +207,12 @@ export function Scanner({ onItemsParsed }: ScannerProps) {
     } finally {
       setIsParsing(false);
     }
-  }, [capturedImage, mode, onItemsParsed, resetCapture]);
+  }, [capturedImage, onItemsParsed, resetCapture]);
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Mode Selection */}
-      <div className="grid grid-cols-2 gap-2">
-        <Button
-          variant={mode === 'receipt' ? 'default' : 'outline'}
-          onClick={() => setMode('receipt')}
-          className={mode === 'receipt' ? 'bg-green-600 hover:bg-green-700' : ''}
-        >
-          <Receipt className="w-4 h-4 mr-2" />
-          영수증 모드
-        </Button>
-        <Button
-          variant={mode === 'product' ? 'default' : 'outline'}
-          onClick={() => setMode('product')}
-          className={mode === 'product' ? 'bg-green-600 hover:bg-green-700' : ''}
-        >
-          <Package className="w-4 h-4 mr-2" />
-          제품 모드
-        </Button>
-      </div>
-
       <p className="text-sm text-gray-500 text-center">
-        {mode === 'receipt'
-          ? '영수증을 촬영하면 여러 품목을 한 번에 등록할 수 있습니다.'
-          : '제품의 라벨이나 유통기한을 촬영하세요.'}
+        영수증 또는 제품을 촬영하면 AI가 자동으로 분석합니다.
       </p>
 
       {/* Camera / Preview Area */}
