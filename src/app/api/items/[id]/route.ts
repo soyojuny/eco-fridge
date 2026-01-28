@@ -52,6 +52,7 @@ export async function PATCH(
       status?: 'active' | 'consumed' | 'discarded';
       expiry_date?: string;
       is_estimated?: boolean;
+      quantity?: number;
       memo?: string | null;
     } = {};
 
@@ -61,6 +62,7 @@ export async function PATCH(
     if (body.status !== undefined) updates.status = body.status;
     if (body.expiry_date !== undefined) updates.expiry_date = body.expiry_date;
     if (body.is_estimated !== undefined) updates.is_estimated = body.is_estimated;
+    if (body.quantity !== undefined) updates.quantity = body.quantity;
     if (body.memo !== undefined) updates.memo = body.memo;
 
     const { data: item, error } = await supabase

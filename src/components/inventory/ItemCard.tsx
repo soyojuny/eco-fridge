@@ -126,6 +126,11 @@ export function ItemCard({ item, onEdit, onConsume, onDelete }: ItemCardProps) {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <h3 className="font-medium truncate">{item.name}</h3>
+              {item.quantity > 1 && (
+                <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded shrink-0">
+                  x{item.quantity}
+                </span>
+              )}
               {item.is_estimated && (
                 <span className="text-xs text-orange-500 shrink-0">(추정)</span>
               )}

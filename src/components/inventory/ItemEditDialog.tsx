@@ -34,6 +34,7 @@ function ItemEditDialogContent({ item, onClose, onSave }: Omit<ItemEditDialogPro
   const [category, setCategory] = useState<string>(item.category || '');
   const [storageMethod, setStorageMethod] = useState<StorageMethod>(item.storage_method);
   const [expiryDate, setExpiryDate] = useState(item.expiry_date);
+  const [quantity, setQuantity] = useState<number>(item.quantity || 1);
   const [memo, setMemo] = useState(item.memo || '');
   const [showStorageHint, setShowStorageHint] = useState(false);
   const [suggestedDate, setSuggestedDate] = useState<string | null>(null);
@@ -73,6 +74,7 @@ function ItemEditDialogContent({ item, onClose, onSave }: Omit<ItemEditDialogPro
       category: category || null,
       storage_method: storageMethod,
       expiry_date: expiryDate,
+      quantity,
       memo: memo.trim() || null,
     });
 
@@ -156,6 +158,17 @@ function ItemEditDialogContent({ item, onClose, onSave }: Omit<ItemEditDialogPro
             type="date"
             value={expiryDate}
             onChange={(e) => setExpiryDate(e.target.value)}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium">수량</label>
+          <Input
+            type="number"
+            value={quantity}
+            onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value, 10) || 1))}
+            placeholder="수량을 입력하세요"
+            min="1"
           />
         </div>
 
