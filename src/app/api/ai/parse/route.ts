@@ -137,7 +137,10 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('AI 파싱 오류:', error);
     return NextResponse.json(
-      { error: '이미지 분석 중 오류가 발생했습니다.' },
+      { 
+        error: '이미지 분석 중 오류가 발생했습니다.',
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     );
   }
