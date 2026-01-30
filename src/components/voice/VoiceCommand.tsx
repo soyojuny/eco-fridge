@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { Mic, MicOff, Loader2, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -22,16 +22,22 @@ export function VoiceCommand() {
   const [state, setState] = useState<VoiceState>('idle');
   const [transcript, setTranscript] = useState('');
   const [isSupported, setIsSupported] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const recognitionRef = useRef<InstanceType<SpeechRecognitionType> | null>(null);
 
   const { processVoiceCommand, isProcessingVoiceCommand } = useItems();
 
-  // 브라우저 지원 여부 확인
+  // 파형 애니메이션을 위한 높이 값들 (고정값 사용)
+  const [waveHeights] = useState([25, 35, 30, 40, 28]);
+
+  // 브라우저 지원 여부를 클라이언트에서만 확인
   useEffect(() => {
-    const supported = typeof window !== 'undefined' &&
-      ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
-    setIsSupported(supported);
+    setIsMounted(true);
+    setIsSupported(
+      typeof window !== 'undefined' &&
+      ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)
+    );
   }, []);
 
   // 음성 인식 시작
@@ -170,8 +176,8 @@ export function VoiceCommand() {
     }
   }, [state, startListening, stopListeningAndProcess]);
 
-  // 브라우저 미지원 시 렌더링 안 함
-  if (!isSupported) {
+  // 브라우저 미지원 시 또는 마운트 전에는 렌더링 안 함
+  if (!isMounted || !isSupported) {
     return null;
   }
 
@@ -231,12 +237,12 @@ export function VoiceCommand() {
             {/* 파형 애니메이션 */}
             {state === 'listening' && (
               <div className="flex items-center justify-center gap-1 h-12">
-                {[...Array(5)].map((_, i) => (
+                {waveHeights.map((height, i) => (
                   <div
                     key={i}
                     className="w-1 bg-green-600 rounded-full animate-pulse"
                     style={{
-                      height: `${20 + Math.random() * 20}px`,
+                      height: `${height}px`,
                       animationDelay: `${i * 0.1}s`,
                       animationDuration: '0.5s',
                     }}
@@ -255,7 +261,7 @@ export function VoiceCommand() {
             {/* 인식된 텍스트 */}
             {transcript && (
               <div className="bg-gray-100 rounded-lg p-4 w-full text-center">
-                <p className="text-lg font-medium text-gray-800">"{transcript}"</p>
+                <p className="text-lg font-medium text-gray-800">{'"'}{transcript}{'"'}</p>
               </div>
             )}
 

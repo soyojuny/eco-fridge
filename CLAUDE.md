@@ -6,6 +6,8 @@
 
 -   **Mobile-First Design:** 모든 UI와 UX는 모바일 환경을 최우선으로 고려하여 설계 및 개발합니다.
 -   **Component-Based Architecture:** 재사용 가능하고 응집도 높은 컴포넌트 단위로 개발하여 생산성과 유지보수성을 높입니다. (`Shadcn/UI` 기반)
+-   **Service-Oriented Backend:** 백엔드 비즈니스 로직은 `src/lib/services` 내의 서비스 계층에 캡슐화됩니다. API 라우트(`src/app/api/**`)는 요청과 응답만 처리하는 얇은 컨트롤러(Controller) 역할을 하며, AI 처리나 데이터베이스 상호작용과 같은 복잡한 작업은 서비스에 위임합니다. 이는 관심사 분리, 모듈성, 재사용성을 촉진합니다.
+-   **Feature-based Type Definitions:** 타입스크립트 타입은 `src/types` 디렉토리 내에서 기능(`scanner.d.ts`, `command.d.ts` 등)별로 구성됩니다. 핵심 데이터베이스 타입은 `database.ts`에 위치하여 애플리케이션 성장에 따른 타입 관리의 용이성을 확보합니다.
 -   **Clear State Separation:** 상태 관리 라이브러리의 역할을 명확히 분리하여 데이터 흐름을 예측 가능하게 관리합니다.
     -   **Server State (`@tanstack/react-query`):** 서버와의 데이터 동기화, 캐싱, 비동기 데이터 처리를 담당합니다.
     -   **Client State (`zustand`):** 전역 UI 상태, 필터, 세션 정보 등 클라이언트 측 상태를 담당합니다.

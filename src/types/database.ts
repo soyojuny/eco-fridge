@@ -20,18 +20,23 @@ export interface Item {
 export type ItemInsert = Omit<Item, 'id' | 'created_at'>;
 export type ItemUpdate = Partial<Omit<Item, 'id' | 'user_id' | 'created_at'>>;
 
-export interface Database {
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[];
+
+export type Database = {
   public: {
     Tables: {
       items: {
         Row: Item;
         Insert: ItemInsert;
         Update: ItemUpdate;
+        Relationships: [];
       };
     };
-    Views: Record<string, never>;
-    Functions: Record<string, never>;
-    Enums: Record<string, never>;
-    CompositeTypes: Record<string, never>;
   };
-}
+};

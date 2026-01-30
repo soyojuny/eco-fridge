@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { updateItem } from '@/lib/services/item.service';
+import type { Database, ItemUpdate } from '@/types/database';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 // GET: 특정 아이템 조회
 export async function GET(
@@ -8,7 +11,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const supabase = await createClient();
+    const supabase: SupabaseClient<Database> = await createClient();
     if (!supabase) {
       return NextResponse.json({ error: 'Database not configured' }, { status: 500 });
     }
@@ -37,7 +40,7 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
-    const supabase = await createClient();
+    const supabase: SupabaseClient<Database> = await createClient();
     if (!supabase) {
       return NextResponse.json({ error: 'Database not configured' }, { status: 500 });
     }
@@ -45,16 +48,7 @@ export async function PATCH(
     const body = await req.json();
 
     // 수정 가능한 필드만 추출
-    const updates: {
-      name?: string;
-      category?: string | null;
-      storage_method?: 'fridge' | 'freezer' | 'pantry';
-      status?: 'active' | 'consumed' | 'discarded';
-      expiry_date?: string;
-      is_estimated?: boolean;
-      quantity?: number;
-      memo?: string | null;
-    } = {};
+    const updates: ItemUpdate = {};
 
     if (body.name !== undefined) updates.name = body.name;
     if (body.category !== undefined) updates.category = body.category;
@@ -65,16 +59,17 @@ export async function PATCH(
     if (body.quantity !== undefined) updates.quantity = body.quantity;
     if (body.memo !== undefined) updates.memo = body.memo;
 
+    await updateItem(supabase, id, updates);
+
+    // 업데이트된 아이템을 조회
     const { data: item, error } = await supabase
       .from('items')
-      .update(updates)
+      .select('*')
       .eq('id', id)
-      .select()
       .single();
 
-    if (error) {
-      console.error('Item update error:', error);
-      return NextResponse.json({ error: '아이템을 수정할 수 없습니다.' }, { status: 500 });
+    if (error || !item) {
+      return NextResponse.json({ error: '아이템을 찾을 수 없습니다.' }, { status: 404 });
     }
 
     return NextResponse.json({ item });
@@ -91,7 +86,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const supabase = await createClient();
+    const supabase: SupabaseClient<Database> = await createClient();
     if (!supabase) {
       return NextResponse.json({ error: 'Database not configured' }, { status: 500 });
     }
