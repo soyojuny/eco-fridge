@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '인벤토리를 불러올 수 없습니다.' }, { status: 500 });
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     const prompt = generateVoiceCommandPrompt(items || []) + `\n\n# User Command:\n${command}`;
 
     const result = await model.generateContent(prompt);
